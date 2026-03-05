@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flashcard Kanji Jepang v2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .perspective {
+        perspective: 1000px;
+      }
+      .flip-card-inner {
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        cursor: pointer;
+      }
+      .flip-card-inner.is-flipped {
+        transform: rotateY(180deg);
+      }
+      .flip-card-front,
+      .flip-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 1.5rem;
+        box-shadow:
+          0 10px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      }
+      .flip-card-back {
+        transform: rotateY(180deg);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-100 min-h-screen flex flex-col items-center py-10 px-4 font-sans text-slate-900"
+  >
+    <div class="max-w-md w-full text-center">
+      <br />
+      <!-- <header class="mb-8">
+            <h1 class="text-xl font-extrabold text-indigo-700 tracking-tight">Hafalan Kanji</h1>
+            <p class="text-slate-500 mt-2 font-medium">Ketuk kartu untuk melihat jawaban</p>
+        </header> -->
+
+      <!-- Flashcard Container -->
+      <div class="perspective w-full h-80 mb-8 mx-auto">
+        <div id="flashcard" class="flip-card-inner relative w-full h-full">
+          <!-- Sisi Depan (Kanji) -->
+          <div class="flip-card-front bg-white border-4 border-indigo-50">
+            <span
+              id="kanji-display"
+              class="text-9xl font-bold text-slate-800"
+            ></span>
+            <p
+              class="mt-6 text-indigo-400 text-xs font-bold uppercase tracking-widest"
+            >
+              Kanji
+            </p>
+          </div>
+          <!-- Sisi Belakang (Arti & Cara Baca) -->
+          <div class="flip-card-back bg-indigo-600 text-white p-6">
+            <p
+              class="text-xs font-bold uppercase tracking-widest opacity-70 mb-2"
+            >
+              Arti
+            </p>
+            <h2 id="meaning-display" class="text-5xl font-bold mb-6"></h2>
+            <div
+              class="w-full bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20"
+            >
+              <p
+                class="text-xs font-bold uppercase tracking-widest opacity-70 mb-1 text-left"
+              >
+                Cara Baca:
+              </p>
+              <p
+                id="reading-display"
+                class="text-xl font-medium text-left leading-relaxed"
+              ></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="mb-8 space-y-2">
+        <div class="flex items-center justify-between px-2">
+          <span
+            id="progress-text"
+            class="text-sm font-bold text-slate-600"
+          ></span>
+          <span
+            id="percentage-text"
+            class="text-sm font-bold text-indigo-600"
+          ></span>
+        </div>
+        <div
+          class="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner"
+        >
+          <div
+            id="progress-bar"
+            class="bg-indigo-600 h-full transition-all duration-500 ease-out"
+            style="width: 0%"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="grid grid-cols-2 gap-4">
+        <button
+          onclick="prevCard()"
+          class="py-4 bg-white border-2 border-slate-200 text-slate-700 rounded-2xl font-bold hover:bg-slate-50 hover:border-slate-300 active:scale-95 transition-all shadow-sm"
+        >
+          ← Prev
+        </button>
+        <button
+          onclick="nextCard()"
+          class="py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-200"
+        >
+          Next →
+        </button>
+      </div>
+
+      <button
+        onclick="shuffleCards()"
+        class="mt-8 flex items-center justify-center gap-2 mx-auto text-indigo-600 font-bold hover:text-indigo-800 transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        Acak Urutan
+      </button>
+    </div>
+
+    <!-- Daftar List -->
+    <div class="max-w-4xl w-full mt-16 pb-20">
+      <div class="flex items-center justify-between mb-6 px-2">
+        <h3 class="text-2xl font-extrabold text-slate-800">Daftar Referensi</h3>
+        <span
+          id="list-count"
+          class="bg-slate-200 text-slate-700 px-3 py-1 rounded-full text-xs font-bold"
+        ></span>
+      </div>
+      <div
+        id="kanji-list"
+        class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+      >
+        <!-- Table will be injected here -->
+      </div>
+    </div>
+
+    <script>
+      const kanjiData = [
+        { kanji: "女", meaning: "Wanita", reading: "Onna | Jo" },
+        { kanji: "子", meaning: "Anak", reading: "Ko | Shi" },
+        { kanji: "小", meaning: "Kecil", reading: "Chii(sai) | Shou" },
+        { kanji: "気", meaning: "Perasaan / Roh", reading: "Ki | Ke" },
+        { kanji: "父", meaning: "Ayah", reading: "Chichi | Fu" },
+        { kanji: "犬", meaning: "Anjing", reading: "Inu | Ken" },
+        { kanji: "甘", meaning: "Manis", reading: "Ama(i) | Kan" },
+        { kanji: "石", meaning: "Batu", reading: "Ishi | Seki" },
+        { kanji: "白", meaning: "Putih", reading: "Shiro | Haku" },
+        { kanji: "米", meaning: "Beras", reading: "Kome | Bei / Mai" },
+        { kanji: "自", meaning: "Diri Sendiri", reading: "Mizuka(ra) | Ji" },
+        { kanji: "肉", meaning: "Daging", reading: "Niku" },
+        { kanji: "話", meaning: "Pidato / Bicara", reading: "Hana(su) | Wa" },
+        { kanji: "足", meaning: "Kaki", reading: "Ashi | Soku" },
+        { kanji: "見", meaning: "Lihat", reading: "Mi(ru) | Ken" },
+        { kanji: "金", meaning: "Logam / Emas", reading: "Kane | Kin" },
+        { kanji: "雨", meaning: "Hujan", reading: "Ame | U" },
+        { kanji: "長", meaning: "Panjang", reading: "Naga(i) | Chou" },
+        { kanji: "音", meaning: "Suara", reading: "Oto | On" },
+        { kanji: "食", meaning: "Makan", reading: "Ta(beru) | Shoku" },
+        { kanji: "首", meaning: "Leher", reading: "Kubi | Shu" },
+        { kanji: "馬", meaning: "Kuda", reading: "Uma | Ba" },
+        { kanji: "丈", meaning: "Panjang (Stature)", reading: "Take | Jou" },
+        {
+          kanji: "日",
+          meaning: "Matahari",
+          reading: "Hi / Bi | Nichi / Jitsu",
+        },
+        { kanji: "月", meaning: "Bulan", reading: "Tsuki | Getsu / Gatsu" },
+        { kanji: "木", meaning: "Pohon", reading: "Ki | Moku / Boku" },
+        { kanji: "山", meaning: "Gunung", reading: "Yama | San" },
+        { kanji: "川", meaning: "Sungai", reading: "Kawa | Sen" },
+        { kanji: "田", meaning: "Sawah", reading: "Ta | Den" },
+        { kanji: "人", meaning: "Manusia", reading: "Hito | Jin / Nin" },
+        { kanji: "口", meaning: "Mulut", reading: "Kuchi | Kou" },
+        { kanji: "車", meaning: "Kendaraan", reading: "Kuruma | Sha" },
+        { kanji: "門", meaning: "Gerbang", reading: "Kado | Mon" },
+        { kanji: "火", meaning: "Api", reading: "Hi | Ka" },
+        { kanji: "水", meaning: "Air", reading: "Mizu | Sui" },
+      ];
+
+      let currentIndex = 0;
+      const cardElement = document.getElementById("flashcard");
+      const kanjiDisplay = document.getElementById("kanji-display");
+      const meaningDisplay = document.getElementById("meaning-display");
+      const readingDisplay = document.getElementById("reading-display");
+      const progressText = document.getElementById("progress-text");
+      const progressBar = document.getElementById("progress-bar");
+      const percentageText = document.getElementById("percentage-text");
+      const kanjiListContainer = document.getElementById("kanji-list");
+      const listCount = document.getElementById("list-count");
+
+      cardElement.addEventListener("click", () => {
+        cardElement.classList.toggle("is-flipped");
+      });
+      
+      function updateCard() {
+        cardElement.classList.remove("is-flipped");
+        setTimeout(() => {
+          const item = kanjiData[currentIndex];
+          kanjiDisplay.textContent = item.kanji;
+          meaningDisplay.textContent = item.meaning;
+          readingDisplay.textContent = item.reading;
+
+          const total = kanjiData.length;
+          const current = currentIndex + 1;
+          progressText.textContent = `Kartu ${current} dari ${total}`;
+          const progressPercent = (current / total) * 100;
+          progressBar.style.width = `${progressPercent}%`;
+          percentageText.textContent = `${Math.round(progressPercent)}%`;
+        }, 150);
+      }
+
+      function nextCard() {
+        currentIndex = (currentIndex + 1) % kanjiData.length;
+        updateCard();
+      }
+      
+      function prevCard() {
+          currentIndex = (currentIndex - 1 + kanjiData.length) % kanjiData.length;
+          updateCard();
+        }
+        
+        window.addEventListener("keydown", (e) => {
+          // console.log(e)
+          if (event.key === "Enter") {
+            cardElement.classList.toggle("is-flipped");
+            console.log(e)
+          } else if ( event.key === "ArrowRight"){
+              nextCard()
+          }else if ( event.key === "ArrowLeft"){
+              prevCard()
+          }
+        });
+
+      function shuffleCards() {
+        kanjiData.sort(() => Math.random() - 0.5);
+        currentIndex = 0;
+        updateCard();
+        renderList();
+      }
+
+      function renderList() {
+        listCount.textContent = `${kanjiData.length} Kanji`;
+        kanjiListContainer.innerHTML = kanjiData
+          .map(
+            (item) => `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <div class="text-4xl font-bold text-indigo-600 mb-2">${item.kanji}</div>
+                    <div class="font-bold text-slate-800 text-sm">${item.meaning}</div>
+                    <div class="text-[10px] text-slate-400 mt-1 uppercase font-semibold">${item.reading}</div>
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      window.onload = () => {
+        updateCard();
+        renderList();
+      };
+    </script>
+  </body>
+</html>
