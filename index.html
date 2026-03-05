@@ -167,9 +167,9 @@
     <script>
       const kanjiData = [
         { kanji: "女", meaning: "Wanita", reading: "Onna | Jo" },
-        { kanji: "子", meaning: "Anak", reading: "Ko | Shi" },
+        { kanji: "子", meaning: "Anak", reading: "Ko | Shisutsu" },
         { kanji: "小", meaning: "Kecil", reading: "Chii(sai) | Shou" },
-        { kanji: "気", meaning: "Perasaan / Roh", reading: "Ki | Ke" },
+        { kanji: " 心", meaning: "Perasaan / Jantung", reading: "kokoro | shin" },
         { kanji: "父", meaning: "Ayah", reading: "Chichi | Fu" },
         { kanji: "犬", meaning: "Anjing", reading: "Inu | Ken" },
         { kanji: "甘", meaning: "Manis", reading: "Ama(i) | Kan" },
@@ -178,7 +178,7 @@
         { kanji: "米", meaning: "Beras", reading: "Kome | Bei / Mai" },
         { kanji: "自", meaning: "Diri Sendiri", reading: "Mizuka(ra) | Ji" },
         { kanji: "肉", meaning: "Daging", reading: "Niku" },
-        { kanji: "話", meaning: "Pidato / Bicara", reading: "Hana(su) | Wa" },
+        { kanji: "言", meaning: "Pidato / Bicara", reading: "Iu | gen" },
         { kanji: "足", meaning: "Kaki", reading: "Ashi | Soku" },
         { kanji: "見", meaning: "Lihat", reading: "Mi(ru) | Ken" },
         { kanji: "金", meaning: "Logam / Emas", reading: "Kane | Kin" },
@@ -188,11 +188,11 @@
         { kanji: "食", meaning: "Makan", reading: "Ta(beru) | Shoku" },
         { kanji: "首", meaning: "Leher", reading: "Kubi | Shu" },
         { kanji: "馬", meaning: "Kuda", reading: "Uma | Ba" },
-        { kanji: "丈", meaning: "Panjang (Stature)", reading: "Take | Jou" },
+        { kanji: "丈", meaning: "Panjang (Stature)", reading: "Take | Kou" },
         {
           kanji: "日",
           meaning: "Matahari",
-          reading: "Hi / Bi | Nichi / Jitsu",
+          reading: "Hi , Bi, Ka | Nichi , Jitsu",
         },
         { kanji: "月", meaning: "Bulan", reading: "Tsuki | Getsu / Gatsu" },
         { kanji: "木", meaning: "Pohon", reading: "Ki | Moku / Boku" },
@@ -203,7 +203,7 @@
         { kanji: "口", meaning: "Mulut", reading: "Kuchi | Kou" },
         { kanji: "車", meaning: "Kendaraan", reading: "Kuruma | Sha" },
         { kanji: "門", meaning: "Gerbang", reading: "Kado | Mon" },
-        { kanji: "火", meaning: "Api", reading: "Hi | Ka" },
+        { kanji: "火", meaning: "Api", reading: "Hi,Bi, Ko | Ka" },
         { kanji: "水", meaning: "Air", reading: "Mizu | Sui" },
       ];
 
@@ -248,7 +248,7 @@
           currentIndex = (currentIndex - 1 + kanjiData.length) % kanjiData.length;
           updateCard();
         }
-        
+
         window.addEventListener("keydown", (e) => {
           // console.log(e)
           if (event.key === "Enter") {
